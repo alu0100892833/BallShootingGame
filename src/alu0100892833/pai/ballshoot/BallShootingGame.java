@@ -6,8 +6,8 @@ public class BallShootingGame extends JApplet {
 	private static final long serialVersionUID = 8526336847971124887L;
 
 	public static void main(String[] args) {
-		
-
+		BallShootingWindow view = new BallShootingWindow();
+		view.setVisible(true);
 	}
 
 }

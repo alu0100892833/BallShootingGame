@@ -62,6 +62,7 @@ public class GameBall {
 	 * @param graphics Where the ball is going to be painted.
 	 */
 	public void paintBall(Graphics graphics) {
+		graphics.setColor(getColor());
 		int originX = getCenter().x - getRadius();
 		int originY = getCenter().y - getRadius();
 		graphics.fillOval(originX, originY, getDiameter(), getDiameter());
@@ -74,10 +75,24 @@ public class GameBall {
 	 * @return True, if they are touching, or false.
 	 */
 	public boolean isTouching(GameBall otherBall) {
+		if (otherBall == null)
+			return false;
 		double distanceBetweenCenters = Point.distance(getCenter().x, getCenter().y, otherBall.getCenter().x, otherBall.getCenter().y);
 		if (distanceBetweenCenters <= getRadius() + otherBall.getRadius())
 			return true;
 		return false;
+	}
+	
+	/**
+	 * Causes the point to advance one position to the given destination.
+	 * Uses the slope of the straight line that joins both points.
+	 * @param destination Point where you expect to end up overtime.
+	 */
+	public void advanceTo(Point destination) {
+		double slope = (destination.y - getCenter().y) / (destination.x - getCenter().x);
+		double nextX = getCenter().x + 1;
+		double nextY = slope * nextX;
+		this.setCenter(new Point((int) nextX, (int) nextY));
 	}
 	
 	
