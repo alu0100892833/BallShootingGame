@@ -1,18 +1,29 @@
 package alu0100892833.pai.ballshoot.view;
 
+import java.applet.AudioClip;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.sound.sampled.Clip;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 
 import alu0100892833.pai.ballshoot.BallShooting;
+import alu0100892833.pai.ballshoot.elements.*;
 
 /**
  * Panel where the Ball Shooting Game can be played.
@@ -28,6 +39,7 @@ public class BallShootingPanel extends JPanel {
 	private ShotCannon cannon;
 	private double objectiveAngle; 
 	private Timer shootingTimer;
+	private AudioClip successClip, failureClip;
 	
 	/**
 	 * Constructor with parameters. 
@@ -37,6 +49,7 @@ public class BallShootingPanel extends JPanel {
 	 * @param ballRadius
 	 */
 	public BallShootingPanel(Dimension size, int ballRadius) {
+		this.setLayout(new BorderLayout());
 		objectiveAngle = Double.POSITIVE_INFINITY;
 		data = new BallShooting(size, ballRadius);
 		cannon = new ShotCannon(data.getPlayingBall().getCenter());
@@ -46,6 +59,24 @@ public class BallShootingPanel extends JPanel {
 		this.addMouseListener(listener);
 		this.addMouseMotionListener(listener);
 		shootingTimer = new Timer(DELAY, new ShotGestion());
+	}
+	
+	public void loadSounds(AudioClip sucess, AudioClip failure) {
+		successClip = sucess;
+		failureClip = failure;
+	}
+	
+	public void loadImageForInfo(Image infoPicture) {
+		JLabel picLabel = new JLabel(new ImageIcon(infoPicture));
+		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		infoPanel.add(picLabel);
+		add(infoPanel, BorderLayout.SOUTH);
+		picLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {  
+				InformationFrame infoFrame = new InformationFrame();
+				infoFrame.setVisible(true);
+		    }  
+		});
 	}
 	
 	/**
@@ -124,6 +155,7 @@ public class BallShootingPanel extends JPanel {
 			} else {
 				getShootingTimer().stop();
 				getData().interrupt();
+				setObjectiveAngle(Double.POSITIVE_INFINITY);
 			}
 		}
 		
@@ -158,75 +190,6 @@ public class BallShootingPanel extends JPanel {
 			if (getData().getObjectives().isEmpty())
 				System.exit(0);
 		}
-	}
-	
-	
-	/**
-	 * Inner class that defines the behavior of the bottom arrow.
-	 * It should follow the direction pointed by the user with the mouth.
-	 * @author Óscar Darias Plasencia
-	 * @since 3-5-2017
-	 */
-	protected class ShotCannon {
-		public static final int DEFAULT_LENGTH = 150;
-		public static final double ARROW_ANGLE = 0.0174533;
-		public static final int ARROW_LENGTH = 20;
-		protected final Color DEFAULT_COLOR = Color.RED;
-		Point origin, end;
-		
-		/**
-		 * Creates a Shot Cannon with its final origin and an initial end.
-		 * @param origin
-		 */
-		public ShotCannon(Point origin) {
-			this.origin = origin;
-			this.end = new Point(origin.x, origin.y - DEFAULT_LENGTH);
-		}
-		
-		/**
-		 * It makes the line from origin to end point to the given Point.
-		 * @param mousePoint Point that should represent the position pointed by the user using the mouse.
-		 */
-		public void endPointsTo(Point mousePoint) {
-			int length = (int) Math.min(DEFAULT_LENGTH, Point.distance(mousePoint.x, mousePoint.y, origin.x, origin.y) - DEFAULT_LENGTH);
-			if (length < 0)
-				length = 0;
-			double angle = Math.toDegrees(Math.atan2(mousePoint.y - origin.y, 
-					mousePoint.x - origin.x));
-			int endX = (int) (origin.x + Math.cos(Math.toRadians(angle)) * length);
-			int endY = (int) (origin.y + Math.sin(Math.toRadians(angle)) * length);
-			this.end = new Point(endX, endY);
-		}
-
-		/**
-		 * Paints the cannon, knowing its origin and end.
-		 * @param g
-		 */
-		public void paint(Graphics g) {
-			g.setColor(DEFAULT_COLOR);
-			g.drawLine(origin.x, origin.y, end.x, end.y);
-			//drawArrowHead(g, end, origin);
-		}
-		
-		/**
-		 * Paints the arrows of the cannon.
-		 * @param graphics
-		 */
-		/*private void drawArrowHead(Graphics graphics, Point p1, Point p2) {
-			 double phi = Math.toRadians(40);
-		     int barb = 20;
-		     double dy = p1.y - p2.y;
-		     double dx = p1.x - p2.x;
-		     double theta = Math.atan2(dy, dx);
-		     double rho = theta + phi;
-		     
-		     for (int j = 0; j < 2; j++) {
-		    	int x = (int) (p1.x - barb * Math.cos(rho));
-		     	int y = (int) (p1.y - barb * Math.sin(rho));
-		     	graphics.drawLine(p1.x, p1.x, x, y);
-		     	rho = theta - phi;
-		     }
-		}*/
 	}
 
 }

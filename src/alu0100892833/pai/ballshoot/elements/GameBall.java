@@ -1,4 +1,4 @@
-package alu0100892833.pai.ballshoot;
+package alu0100892833.pai.ballshoot.elements;
 
 import java.awt.Color;
 import java.awt.Graphics;

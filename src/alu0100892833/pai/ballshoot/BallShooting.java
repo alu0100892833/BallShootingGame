@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
+import alu0100892833.pai.ballshoot.elements.GameBall;
+
 /**
  * Model for the Ball Shooting Game. Keeps all the necessary information.
  * Saves the objective balls in an ArrayList and the playing ball, using the GameBall class.
