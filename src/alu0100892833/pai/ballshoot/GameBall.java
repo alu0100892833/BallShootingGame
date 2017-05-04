@@ -13,6 +13,7 @@ import java.util.Random;
  */
 public class GameBall {
 	private static final Color[] BALL_COLORS = {Color.RED, Color.BLUE, Color.YELLOW, Color.GRAY, Color.BLACK, Color.GREEN};
+	private static final int ADVANCE = 10;
 	
 	private Point center;
 	private int radius;
@@ -88,11 +89,10 @@ public class GameBall {
 	 * Uses the slope of the straight line that joins both points.
 	 * @param destination Point where you expect to end up overtime.
 	 */
-	public void advanceTo(Point destination) {
-		double slope = (destination.y - getCenter().y) / (destination.x - getCenter().x);
-		double nextX = getCenter().x + 1;
-		double nextY = slope * nextX;
-		this.setCenter(new Point((int) nextX, (int) nextY));
+	public void advanceTo(double angle) {
+		int nextX = (int) (getCenter().x + Math.cos(Math.toRadians(angle)) * ADVANCE);
+		int nextY = (int) (getCenter().y + Math.sin(Math.toRadians(angle)) * ADVANCE);
+		this.setCenter(new Point(nextX, nextY));
 	}
 	
 	

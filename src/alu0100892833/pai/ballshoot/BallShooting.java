@@ -12,6 +12,7 @@ import java.util.ArrayList;
  */
 public class BallShooting {
 	private static final int BALL_SEPARATION = 6;
+	private static final int PLAYING_BALL_EXTRA_RADIUS = 20;
 
 	private ArrayList<GameBall> objectives;			/* The balls at the top, the ones the player should make explode. */
 	private GameBall playingBall;					/* The playing ball, the one the player can throw to the objectives. */
@@ -56,9 +57,10 @@ public class BallShooting {
 	 * @param size Dimensions of the available space.
 	 */
 	private void newPlayingBall() {
+		int playingBallRadius = ballRadius + PLAYING_BALL_EXTRA_RADIUS;
 		int x = (int) (size.width / 2);
-		int y = size.height - ballRadius - BALL_SEPARATION;
-		playingBall = new GameBall(x, y, ballRadius);
+		int y = size.height - playingBallRadius - BALL_SEPARATION;
+		playingBall = new GameBall(x, y, playingBallRadius);
 	}
 	
 	/**
@@ -74,19 +76,39 @@ public class BallShooting {
 	/**
 	 * Manages collisions, checking if the playing ball is touching one and just one of the objectives.
 	 * If it is touching multiple objectives, the playing ball is destroyed.
+	 * @return True, if there was an impact, and false in other case.
 	 */
-	public void manageCollitions() {
+	public boolean thereIsCollision() { 
+		boolean impact = false;
 		for (int i = 0; i < getObjectives().size(); i++) {
 			if ((getPlayingBall().isTouching(getObjective(i))) 
 					&& (!getPlayingBall().isTouching(getObjective(i - 1))) 
 					&& (!getPlayingBall().isTouching(getObjective(i + 1)))) {
 				getObjectives().remove(getObjective(i));
 				newPlayingBall();
+				impact = true;
 			} else if ((getPlayingBall().isTouching(getObjective(i))) 
 					&& ((getPlayingBall().isTouching(getObjective(i - 1))) || (getPlayingBall().isTouching(getObjective(i + 1))))) {
 				newPlayingBall();
+				impact = true;
 			}
 		}
+		return impact;
+	}
+	
+	/**
+	 * Causes the playing ball to advance to the given Point.
+	 * @param destination
+	 */
+	public void shootingTo(double shootingAngle) {
+		getPlayingBall().advanceTo(shootingAngle);
+	}
+	
+	/**
+	 * Interrupts any possible shot and resets.
+	 */
+	public void interrupt() {
+		newPlayingBall();
 	}
 	
 	/**
