@@ -1,4 +1,4 @@
-package alu0100892833.pai.ballshoot;
+package alu0100892833.pai.ballshoot.view;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;

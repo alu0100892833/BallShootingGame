@@ -1,4 +1,4 @@
-package alu0100892833.pai.ballshoot;
+package alu0100892833.pai.ballshoot.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,6 +8,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
+
+import alu0100892833.pai.ballshoot.BallShooting;
 
 /**
  * Panel where the Ball Shooting Game can be played.
