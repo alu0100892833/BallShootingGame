@@ -15,11 +15,14 @@ import alu0100892833.pai.ballshoot.elements.GameBall;
 public class BallShooting {
 	private static final int BALL_SEPARATION = 6;
 	private static final int PLAYING_BALL_EXTRA_RADIUS = 20;
+	public static final int MULTIPLE_COLLISION = 2;
+	public static final int NO_COLLISION = 0;
+	public static final int SINGLE_COLLISION = 1;
 
 	private ArrayList<GameBall> objectives;			/* The balls at the top, the ones the player should make explode. */
 	private GameBall playingBall;					/* The playing ball, the one the player can throw to the objectives. */
-	private int ballRadius;
-	private Dimension size;
+	private int ballRadius;							/* The ball´s standard radius */
+	private Dimension size;							/* The size of the gaming space */
 	
 	/**
 	 * Constructor specifying the size of the panel where the game will be shown.
@@ -80,19 +83,19 @@ public class BallShooting {
 	 * If it is touching multiple objectives, the playing ball is destroyed.
 	 * @return True, if there was an impact, and false in other case.
 	 */
-	public boolean thereIsCollision() { 
-		boolean impact = false;
+	public int thereIsCollision() { 
+		int impact = NO_COLLISION;
 		for (int i = 0; i < getObjectives().size(); i++) {
 			if ((getPlayingBall().isTouching(getObjective(i))) 
 					&& (!getPlayingBall().isTouching(getObjective(i - 1))) 
 					&& (!getPlayingBall().isTouching(getObjective(i + 1)))) {
 				getObjectives().remove(getObjective(i));
 				newPlayingBall();
-				impact = true;
+				impact = SINGLE_COLLISION;
 			} else if ((getPlayingBall().isTouching(getObjective(i))) 
 					&& ((getPlayingBall().isTouching(getObjective(i - 1))) || (getPlayingBall().isTouching(getObjective(i + 1))))) {
 				newPlayingBall();
-				impact = true;
+				impact = MULTIPLE_COLLISION;
 			}
 		}
 		return impact;

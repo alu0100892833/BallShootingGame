@@ -1,26 +1,27 @@
 package alu0100892833.pai.ballshoot.view;
 
-import java.applet.AudioClip;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import javax.swing.border.Border;
 
 import alu0100892833.pai.ballshoot.BallShooting;
 import alu0100892833.pai.ballshoot.elements.*;
@@ -39,7 +40,7 @@ public class BallShootingPanel extends JPanel {
 	private ShotCannon cannon;
 	private double objectiveAngle; 
 	private Timer shootingTimer;
-	private AudioClip successClip, failureClip;
+	private String successClip, failureClip;
 	
 	/**
 	 * Constructor with parameters. 
@@ -61,11 +62,58 @@ public class BallShootingPanel extends JPanel {
 		shootingTimer = new Timer(DELAY, new ShotGestion());
 	}
 	
-	public void loadSounds(AudioClip sucess, AudioClip failure) {
-		successClip = sucess;
-		failureClip = failure;
+	/**
+	 * Saves the names of the clips to be played when missing and when having success in the game.
+	 * @param sucess The name of the file with the success sound.
+	 * @param failure The name of the file with the failure sound.
+	 */
+	public void loadSounds(String sucess, String failure) {
+		this.successClip = sucess;
+		this.failureClip = failure;
 	}
 	
+	/**
+	 * Allows to get the name of the file with the success clip.
+	 * @return String.
+	 */
+	public String getSuccessClip() {
+		return successClip;
+	}
+
+	/**
+	 * Allows to get the name of the file with the failure clip.
+	 * @return String.
+	 */
+	public String getFailureClip() {
+		return failureClip;
+	}
+
+	/**
+	 * Plays the sound contained in a file specified by parameter.
+	 * @param fileName The name of the file that contains the sound you want to play.
+	 */
+	private void playClip(String fileName) {
+		if (fileName != null) {
+			Clip sucess = null;
+			try {
+				File sound = new File(fileName);
+				AudioInputStream audioStream = AudioSystem.getAudioInputStream(sound);
+			    AudioFormat format = audioStream.getFormat();
+			    DataLine.Info soundInfo = new DataLine.Info(Clip.class, format);
+			    sucess = (Clip) AudioSystem.getLine(soundInfo);
+			    sucess.open(audioStream);
+			    sucess.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/**
+	 * Loads the given image in a JLabel and situates it in the bottom-right corner of the panel.
+	 * Also adds a listener to show an InformationFrame when the imagen is clicked.
+	 * @param infoPicture
+	 */
 	public void loadImageForInfo(Image infoPicture) {
 		JLabel picLabel = new JLabel(new ImageIcon(infoPicture));
 		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -179,10 +227,17 @@ public class BallShootingPanel extends JPanel {
 			if (getObjectiveAngle() == Double.POSITIVE_INFINITY) {
 				getShootingTimer().stop();
 			} else {
+				getShootingTimer().stop();
 				getData().shootingTo(getObjectiveAngle());
-				if (getData().thereIsCollision()) {
+				int impact = getData().thereIsCollision();
+				if (impact == BallShooting.SINGLE_COLLISION) {
 					setObjectiveAngle(Double.POSITIVE_INFINITY);
-					getShootingTimer().stop();
+					playClip(getSuccessClip());
+				} else if (impact == BallShooting.MULTIPLE_COLLISION) {
+					setObjectiveAngle(Double.POSITIVE_INFINITY);
+					playClip(getFailureClip());
+				} else {
+					getShootingTimer().start();
 				}
 			}
 			revalidate();
