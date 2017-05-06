@@ -36,11 +36,11 @@ public class BallShootingPanel extends JPanel {
 	private static final long serialVersionUID = 4631647511943817494L;
 	private static final int DELAY = 50;
 	
-	private BallShooting data;
-	private ShotCannon cannon;
-	private double objectiveAngle; 
-	private Timer shootingTimer;
-	private String successClip, failureClip;
+	private BallShooting data;								/* The model of the game, all abstract information about it */
+	private ShotCannon cannon;								/* The model of the shotCannon that follows the trail of the mouse */
+	private double objectiveAngle; 							/* The angle of shooting */
+	private Timer shootingTimer;							/* The timer that fires up an event from time to time to draw the trajectory of the playing ball when shot */
+	private String successClip, failureClip;				/* The name of the sound clips to be played when having success and when failing a shot */
 	
 	/**
 	 * Constructor with parameters. 
