@@ -32,7 +32,7 @@ public class BallShootingWindow extends JFrame {
 	 */
 	public BallShootingWindow() {
 		Dimension fullScreen = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension size = new Dimension((int) (fullScreen.getWidth() / WIDTH_PROPORTION), (int) (fullScreen.getHeight() / HEIGHT_PROPORTION));
+		Dimension size = new Dimension((int) (fullScreen.getWidth() / WIDTH_PROPORTION), (int) (fullScreen.getHeight()));
 		mainPanel = new BallShootingPanel(size, BALL_RADIUS);
 		mainPanel.setName("Balls panel");
 		setLocationRelativeTo(null);

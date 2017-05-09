@@ -3,6 +3,7 @@ package alu0100892833.pai.ballshoot.elements;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -31,6 +32,16 @@ public class GameBall {
 	}
 	
 	/**
+	 * Copy constructor.
+	 * @param copy
+	 */
+	public GameBall(GameBall copy) {
+		this.center = copy.getCenter();
+		this.radius = copy.getRadius();
+		this.color = copy.getColor();
+	}
+	
+	/**
 	 * Constructor using indirect parameters.
 	 * @param x The X coordinate of the center.
 	 * @param y The Y coordinate of the center.
@@ -40,6 +51,18 @@ public class GameBall {
 		this.center = new Point(x, y);
 		this.radius = radius;
 		setRandomColor();
+	}
+	
+	/**
+	 * Constructor using indirect parameters.
+	 * @param x The X coordinate of the center.
+	 * @param y The Y coordinate of the center.
+	 * @param radius Integer value.
+	 */
+	public GameBall(Point center, int radius, Color color) {
+		this.center = center;
+		this.radius = radius;
+		this.color = color;
 	}
 
 	/**
@@ -84,6 +107,26 @@ public class GameBall {
 		return false;
 	}
 	
+	public boolean isCloseTo(GameBall otherBall, int closeBy) {
+		if (otherBall == null)
+			return false;
+		double distanceBetweenCenters = Point.distance(getCenter().x, getCenter().y, otherBall.getCenter().x, otherBall.getCenter().y);
+		if (distanceBetweenCenters <= getRadius() + otherBall.getRadius() + closeBy)
+			return true;
+		return false;
+	}
+	
+	public boolean isCloseToAny(ArrayList<GameBall> balls, int closeBy) {
+		if (balls.isEmpty())
+			return false;
+		for (GameBall ball : balls) {
+			double distanceBetweenCenters = Point.distance(getCenter().x, getCenter().y, ball.getCenter().x, ball.getCenter().y);
+			if (distanceBetweenCenters <= getRadius() + ball.getRadius() + closeBy)
+				return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Causes the point to advance one position to the given destination.
 	 * Uses the slope of the straight line that joins both points.
@@ -93,6 +136,16 @@ public class GameBall {
 		int nextX = (int) (getCenter().x + Math.cos(Math.toRadians(angle)) * ADVANCE);
 		int nextY = (int) (getCenter().y + Math.sin(Math.toRadians(angle)) * ADVANCE);
 		this.setCenter(new Point(nextX, nextY));
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof GameBall))
+			return false;
+		GameBall compare = (GameBall) obj;
+		if (compare.getCenter().equals(getCenter()))
+			return true;
+		return false;
 	}
 	
 	

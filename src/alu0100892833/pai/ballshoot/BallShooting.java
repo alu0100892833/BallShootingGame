@@ -1,7 +1,9 @@
 package alu0100892833.pai.ballshoot;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.util.ArrayList;
 
 import alu0100892833.pai.ballshoot.elements.GameBall;
@@ -14,10 +16,15 @@ import alu0100892833.pai.ballshoot.elements.GameBall;
  */
 public class BallShooting {
 	private static final int BALL_SEPARATION = 6;
-	private static final int PLAYING_BALL_EXTRA_RADIUS = 20;
 	public static final int MULTIPLE_COLLISION = 2;
 	public static final int NO_COLLISION = 0;
 	public static final int SINGLE_COLLISION = 1;
+	public static final int WRONG_COLOR = 3;
+	public static final int END_OF_PANEL = 4;
+	public static final int OUT_OF_PANEL_RIGHT = 5;
+	public static final int OUT_OF_PANEL_LEFT = 9;
+	public static final int ALL_RIGHT = 6;
+	private static final int N_BALL_ROWS = 2;
 
 	private ArrayList<GameBall> objectives;			/* The balls at the top, the ones the player should make explode. */
 	private GameBall playingBall;					/* The playing ball, the one the player can throw to the objectives. */
@@ -48,10 +55,19 @@ public class BallShooting {
 		int nextBallPosition = BALL_SEPARATION + ballRadius * 2;
 		int neededSpace = BALL_SEPARATION * 2 + ballRadius * 3; 
 		boolean keepPainting = true;
+		int iterator = 0;
 		while (keepPainting) {
 			objectives.add(new GameBall(widthIterator, height, ballRadius));
 			if (widthIterator + neededSpace > size.width)
-				keepPainting = false;
+				if (iterator < N_BALL_ROWS) {
+					if (iterator == 0)
+						widthIterator = (int) (2 * ballRadius + BALL_SEPARATION * 1.5);
+					else 
+						widthIterator = BALL_SEPARATION + ballRadius;
+					height += ballRadius * 2 + BALL_SEPARATION;
+				    iterator++;
+				} else 
+					keepPainting = false;
 			else
 				widthIterator += nextBallPosition;
 		}
@@ -62,10 +78,9 @@ public class BallShooting {
 	 * @param size Dimensions of the available space.
 	 */
 	private void newPlayingBall() {
-		int playingBallRadius = ballRadius + PLAYING_BALL_EXTRA_RADIUS;
 		int x = (int) (size.width / 2);
-		int y = size.height - playingBallRadius - BALL_SEPARATION;
-		playingBall = new GameBall(x, y, playingBallRadius);
+		int y = (int) (size.height - ballRadius * 3 - BALL_SEPARATION);
+		playingBall = new GameBall(x, y, ballRadius);
 	}
 	
 	/**
@@ -86,27 +101,71 @@ public class BallShooting {
 	public int thereIsCollision() { 
 		int impact = NO_COLLISION;
 		for (int i = 0; i < getObjectives().size(); i++) {
-			if ((getPlayingBall().isTouching(getObjective(i))) 
-					&& (!getPlayingBall().isTouching(getObjective(i - 1))) 
-					&& (!getPlayingBall().isTouching(getObjective(i + 1)))) {
-				getObjectives().remove(getObjective(i));
+			if ((getPlayingBall().isTouching(getObjective(i)))) {
+				if (getPlayingBall().getColor() == getObjective(i).getColor()) {
+					explodeBall(i);
+					newPlayingBall();
+					impact = SINGLE_COLLISION;
+				} else {
+					accumulateBall(i);
+					newPlayingBall();
+					impact = WRONG_COLOR;
+				}
+			} else if (getPlayingBall().getCenter().y - getPlayingBall().getRadius() < 0) {
+				getObjectives().add(new GameBall(getPlayingBall()));
 				newPlayingBall();
-				impact = SINGLE_COLLISION;
-			} else if ((getPlayingBall().isTouching(getObjective(i))) 
-					&& ((getPlayingBall().isTouching(getObjective(i - 1))) || (getPlayingBall().isTouching(getObjective(i + 1))))) {
-				newPlayingBall();
-				impact = MULTIPLE_COLLISION;
+				impact = END_OF_PANEL;
 			}
 		}
 		return impact;
 	}
 	
 	/**
+	 * Manages a ball explosion, looking for any close one with a similar color.
+	 * @param objective Index of the exploding ball.
+	 */
+	private void explodeBall(int objective) {
+		Color explodingColor = getObjective(objective).getColor();
+		ArrayList<GameBall> explodingBalls = new ArrayList<>();
+		explodingBalls.add(getObjective(objective));
+		for (int i = 0; i < getObjectives().size(); i++) {
+			if ((getObjective(i).isCloseToAny(explodingBalls, BALL_SEPARATION * 3)) 
+					&& (getObjective(i).getColor().equals(explodingColor))
+					&& (!explodingBalls.contains(getObjective(i)))) {
+				explodingBalls.add(getObjective(i));
+				i = -1;
+			}
+		}
+		getObjectives().removeAll(explodingBalls);
+	}
+	
+	private void accumulateBall(int objective) {
+		int xPos = getObjective(objective).getCenter().x;
+		int yPos = getObjective(objective).getCenter().y + ballRadius * 2;
+		if (getPlayingBall().getCenter().x >= xPos) {
+			xPos = xPos + getObjective(objective).getRadius() + (BALL_SEPARATION / 2);
+		} else {
+			xPos = xPos - getObjective(objective).getRadius() - (BALL_SEPARATION / 2);
+		}
+		getObjectives().add(new GameBall(new Point(xPos, yPos), ballRadius, getPlayingBall().getColor()));
+	}
+	
+	/**
 	 * Causes the playing ball to advance to the given Point.
 	 * @param destination
 	 */
-	public void shootingTo(double shootingAngle) {
+	public int shootingTo(double shootingAngle) {
 		getPlayingBall().advanceTo(shootingAngle);
+		return playingOutOfPanel();
+	}
+	
+	private int playingOutOfPanel() {
+		if (getPlayingBall().getCenter().x - ballRadius <= 0)
+			return OUT_OF_PANEL_LEFT;
+		else if (getPlayingBall().getCenter().x + ballRadius >= getSize().width) 
+			return OUT_OF_PANEL_RIGHT;
+		else
+			return ALL_RIGHT;
 	}
 	
 	/**

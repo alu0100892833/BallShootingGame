@@ -34,7 +34,7 @@ import alu0100892833.pai.ballshoot.elements.*;
  */
 public class BallShootingPanel extends JPanel {
 	private static final long serialVersionUID = 4631647511943817494L;
-	private static final int DELAY = 50;
+	private static final int DELAY = 10;
 	
 	private BallShooting data;								/* The model of the game, all abstract information about it */
 	private ShotCannon cannon;								/* The model of the shotCannon that follows the trail of the mouse */
@@ -192,6 +192,7 @@ public class BallShootingPanel extends JPanel {
 	 */
 	@Override
 	protected void paintComponent(Graphics graphics) {
+		super.paintComponent(graphics);
 		setBackground(Color.WHITE);
 		getData().paint(graphics);
 		getCannon().paint(graphics);
@@ -235,11 +236,12 @@ public class BallShootingPanel extends JPanel {
 	protected class ShotGestion implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			int state = -1;
 			if (getObjectiveAngle() == Double.POSITIVE_INFINITY) {
 				getShootingTimer().stop();
 			} else {
 				getShootingTimer().stop();
-				getData().shootingTo(getObjectiveAngle());
+				state = getData().shootingTo(getObjectiveAngle());
 				int impact = getData().thereIsCollision();
 				if (impact == BallShooting.SINGLE_COLLISION) {
 					setObjectiveAngle(Double.POSITIVE_INFINITY);
@@ -247,9 +249,20 @@ public class BallShootingPanel extends JPanel {
 				} else if (impact == BallShooting.MULTIPLE_COLLISION) {
 					setObjectiveAngle(Double.POSITIVE_INFINITY);
 					playClip(getFailureClip());
+				} else if (impact == BallShooting.WRONG_COLOR) {
+					setObjectiveAngle(Double.POSITIVE_INFINITY);
+					playClip(getFailureClip());
+				} else if (impact == BallShooting.END_OF_PANEL) {
+					setObjectiveAngle(Double.POSITIVE_INFINITY);
+					playClip(getFailureClip());
 				} else {
 					getShootingTimer().start();
 				}
+			}
+			if (state == BallShooting.OUT_OF_PANEL_LEFT) {
+				setObjectiveAngle(getObjectiveAngle() - 100);
+			} else if (state == BallShooting.OUT_OF_PANEL_RIGHT) {
+				setObjectiveAngle(getObjectiveAngle() + 100);
 			}
 			revalidate();
 			repaint();

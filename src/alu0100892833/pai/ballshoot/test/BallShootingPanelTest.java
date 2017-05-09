@@ -35,6 +35,9 @@ public class BallShootingPanelTest extends AssertJSwingJUnitTestCase {
 		assertTrue(program.getMainPanel().getInfoFrame().isVisible());
 	}
 	
+	/**
+	 * Test the correct behavior after a shot.
+	 */
 	@Test
 	public void testShot() {
 		frame.panel("Balls panel").click();
