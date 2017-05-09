@@ -35,4 +35,12 @@ public class BallShootingPanelTest extends AssertJSwingJUnitTestCase {
 		assertTrue(program.getMainPanel().getInfoFrame().isVisible());
 	}
 	
+	@Test
+	public void testShot() {
+		frame.panel("Balls panel").click();
+		assertTrue(program.getMainPanel().getShootingTimer().isRunning());
+		assertTrue(program.getMainPanel().getObjectiveAngle() != Double.POSITIVE_INFINITY);
+		frame.panel("Balls panel").click();
+		assertFalse(program.getMainPanel().getShootingTimer().isRunning());
+	}
 }
