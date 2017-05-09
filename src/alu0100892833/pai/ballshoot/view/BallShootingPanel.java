@@ -41,6 +41,7 @@ public class BallShootingPanel extends JPanel {
 	private double objectiveAngle; 							/* The angle of shooting */
 	private Timer shootingTimer;							/* The timer that fires up an event from time to time to draw the trajectory of the playing ball when shot */
 	private String successClip, failureClip;				/* The name of the sound clips to be played when having success and when failing a shot */
+	private InformationFrame infoFrame;
 	
 	/**
 	 * Constructor with parameters. 
@@ -60,6 +61,16 @@ public class BallShootingPanel extends JPanel {
 		this.addMouseListener(listener);
 		this.addMouseMotionListener(listener);
 		shootingTimer = new Timer(DELAY, new ShotGestion());
+		
+		infoFrame = new InformationFrame();
+		infoFrame.setName("InfoFrame");
+	}
+	
+	/**
+	 * Returns the information frame.
+	 */
+	public InformationFrame getInfoFrame() {
+		return infoFrame;
 	}
 	
 	/**
@@ -117,11 +128,11 @@ public class BallShootingPanel extends JPanel {
 	public void loadImageForInfo(Image infoPicture) {
 		JLabel picLabel = new JLabel(new ImageIcon(infoPicture));
 		JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		picLabel.setName("InfoLabel");
 		infoPanel.add(picLabel);
 		add(infoPanel, BorderLayout.SOUTH);
 		picLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {  
-				InformationFrame infoFrame = new InformationFrame();
 				infoFrame.setVisible(true);
 		    }  
 		});
